@@ -11,6 +11,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /app
 COPY --from=builder /gocheck .
 COPY addresses.txt .
+COPY working_sites.txt .
 
 EXPOSE 8080
 

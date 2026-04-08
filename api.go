@@ -237,24 +237,6 @@ func handleCheckBatch(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, resp)
 }
-func handleGetWorkingSites(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed, use GET"})
-		return
-	}
-
-	sites := loadSites("working_sites.txt") // تم التصحيح: تستقبل قيمة واحدة فقط
-	
-	// التحقق مما إذا كانت قائمة المواقع فارغة (مما يشير إلى عدم وجود مواقع أو خطأ في التحميل)
-	if len(sites) == 0 {
-		log.Printf("No working sites found or error loading working_sites")
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "no working sites found or could not load sites"})
-		return
-	}
-
-	writeJSON(w, http.StatusOK, sites)
-}
-
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
@@ -301,7 +283,6 @@ func runAPIServer() {
 	mux.HandleFunc("/health", handleHealth)
 	mux.HandleFunc("/api/check", handleCheckSingle)
 	mux.HandleFunc("/api/check/batch", handleCheckBatch)
-	mux.HandleFunc("/sites/working", handleGetWorkingSites)
 
 	// Apply middleware
 	handler := corsMiddleware(loggingMiddleware(mux))
