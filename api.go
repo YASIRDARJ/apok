@@ -237,6 +237,21 @@ func handleCheckBatch(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, resp)
 }
+func handleGetWorkingSites(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed, use GET"})
+		return
+	}
+
+	sites, err := loadSites("working_sites.txt") // Assuming loadSites can read working_sites.txt
+	if err != nil {
+		log.Printf("Error loading working_sites.txt: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not load working sites"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, sites)
+}
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
@@ -283,6 +298,7 @@ func runAPIServer() {
 	mux.HandleFunc("/health", handleHealth)
 	mux.HandleFunc("/api/check", handleCheckSingle)
 	mux.HandleFunc("/api/check/batch", handleCheckBatch)
+	mux.HandleFunc("/sites/working", handleGetWorkingSites)
 
 	// Apply middleware
 	handler := corsMiddleware(loggingMiddleware(mux))
